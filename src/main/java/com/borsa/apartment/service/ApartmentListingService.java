@@ -27,12 +27,7 @@ public class ApartmentListingService {
         return apartmentListingRepository.findById(id).orElse(null);
     }
 
-//    public ApartmentListing getListingsByEmail(String email) {
-//
-//    }
-
-    public ApartmentListing updateListing(Long id, ApartmentListing listing) {
-        listing.setId(id);
+    public ApartmentListing updateListing(ApartmentListing listing) {
         return apartmentListingRepository.save(listing);
     }
 
