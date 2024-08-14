@@ -1,8 +1,6 @@
 package com.borsa.apartment.filter;
 
-import com.borsa.apartment.model.User;
 import com.borsa.apartment.service.JwtService;
-import com.borsa.apartment.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
@@ -24,8 +22,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
-        String email = null;
-        String token = null;
+        String email;
+        String token;
 
         if(authHeader == null || !authHeader.startsWith("Bearer ")) {
             chain.doFilter(request, response);

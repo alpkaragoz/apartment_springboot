@@ -1,5 +1,7 @@
 package com.borsa.apartment.controller;
 
+import com.borsa.apartment.dto.MessageResponseDto;
+import com.borsa.apartment.dto.MyListingsResponseDto;
 import com.borsa.apartment.model.ApartmentListing;
 import com.borsa.apartment.service.ApartmentListingService;
 import com.borsa.apartment.service.UserService;
@@ -7,9 +9,7 @@ import com.borsa.apartment.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/apartments")
@@ -22,79 +22,83 @@ public class ApartmentListingController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/list")
+    @GetMapping("/lists")
     public List<ApartmentListing> getAllListings() {
         return apartmentListingService.getAllListings();
     }
 
+    @PostMapping("/create-listing")
+    public ResponseEntity<MessageResponseDto> createListing(@RequestBody ApartmentListing listing, @RequestHeader("Authorization") String header) {
+        MessageResponseDto responseBody = new MessageResponseDto();
+        String token = header.substring(7);
+        try {
+            User user = userService.findUserFromToken(token);
+            apartmentListingService.saveListing(user, listing);
+            responseBody.setMessage("Successfully added listing.");
+            return ResponseEntity.ok().body(responseBody);
+        } catch (Exception e) {
+            responseBody.setMessage("Unable to add listing.");
+            return ResponseEntity.status(500).body(responseBody);
+        }
+    }
+
+    @GetMapping("/my-listings")
+    public ResponseEntity<MyListingsResponseDto>  getMyListings(@RequestHeader("Authorization") String header) {
+        MyListingsResponseDto responseBody = new MyListingsResponseDto();
+        String token = header.substring(7);
+        try {
+            User user = userService.findUserFromToken(token);
+            List<ApartmentListing> apartmentListings = userService.getApartmentListings(user);
+
+            // No listing found
+            if (apartmentListings.isEmpty()) {
+                responseBody.setMessage("There is no listing registered under this user.");
+                responseBody.setMessageSeverity("warn");
+                responseBody.setListings(null);
+                return ResponseEntity.status(204).body(responseBody);
+            }
+
+            // Listings found
+            responseBody.setMessage("Found listings of " + user.getEmail());
+            responseBody.setMessageSeverity("success");
+            responseBody.setListings(apartmentListings);
+            return ResponseEntity.ok().body(responseBody);
+        }  catch (Exception e) {
+
+            // Exception
+            responseBody.setMessage("Error getting listings.");
+            responseBody.setMessageSeverity("error");
+            responseBody.setListings(null);
+            return ResponseEntity.status(500).body(responseBody);
+        }
+    }
+
     @PostMapping("/my-listings/edit")
-    public ResponseEntity<Map<String, Object>> editListing(@RequestBody ApartmentListing listing, @RequestHeader("Authorization") String header) {
-        Map<String, Object> returnBody = new HashMap<>();
+    public ResponseEntity<MessageResponseDto> editListing(@RequestBody ApartmentListing listing, @RequestHeader("Authorization") String header) {
+        MessageResponseDto responseBody = new MessageResponseDto();
         String token = header.substring(7);
         try {
             User user = userService.findUserFromToken(token);
             listing.setUser(user);
             apartmentListingService.updateListing(listing);
-            returnBody.put("message", "Successfully updated listing.");
-            return ResponseEntity.ok().body(returnBody);
+            responseBody.setMessage("Successfully updated listing.");
+            return ResponseEntity.ok().body(responseBody);
         } catch (Exception e) {
-            returnBody.put("message", "Unable to update listing.");
-            return ResponseEntity.status(500).body(returnBody);
+            responseBody.setMessage("Unable to update listing.");
+            return ResponseEntity.status(500).body(responseBody);
         }
     }
 
     @PostMapping("/my-listings/delete")
-    public ResponseEntity<Map<String, Object>> deleteListing(@RequestBody ApartmentListing listing) {
-        Map<String, Object> returnBody = new HashMap<>();
+    public ResponseEntity<MessageResponseDto> deleteListing(@RequestBody ApartmentListing listing) {
+        MessageResponseDto responseBody = new MessageResponseDto();
         try {
             apartmentListingService.deleteListing(listing.getId());
-            returnBody.put("message", "Successfully deleted listing.");
-            return ResponseEntity.ok().body(returnBody);
+            responseBody.setMessage("Successfully deleted listing.");
+            return ResponseEntity.ok().body(responseBody);
         } catch (Exception e) {
-            returnBody.put("message", "Unable to delete listing.");
-            return ResponseEntity.status(500).body(returnBody);
-        }
-    }
-
-    @PostMapping("/create-listing")
-    public ResponseEntity<Map<String, Object>> createListing(@RequestBody ApartmentListing listing, @RequestHeader("Authorization") String header) {
-        Map<String, Object> returnBody = new HashMap<>();
-        String token = header.substring(7);
-        try {
-            User user = userService.findUserFromToken(token);
-            apartmentListingService.saveListing(user, listing);
-            returnBody.put("message", "Successfully added listing.");
-            return ResponseEntity.ok().body(returnBody);
-        } catch (Exception e) {
-            returnBody.put("message", "Unable to add listing.");
-            return ResponseEntity.status(500).body(returnBody);
-        }
-    }
-
-    @GetMapping("/my-listings")
-    public ResponseEntity<Map<String, Object>>  getMyListings(@RequestHeader("Authorization") String header) {
-        Map<String, Object> returnBody = new HashMap<>();
-        String token = header.substring(7);
-        try {
-            User user = userService.findUserFromToken(token);
-            List<ApartmentListing> apartmentListings = userService.getApartmentListings(user);
-            if (apartmentListings.isEmpty()) {
-                throw new NullPointerException();
-            }
-            returnBody.put("message", "Found listings of " + user.getEmail());
-            returnBody.put("messageSeverity", "success");
-            returnBody.put("listings", apartmentListings);
-            return ResponseEntity.ok().body(returnBody);
-        }  catch (NullPointerException e) {
-            returnBody.put("message", "There is no listing registered under this user.");
-            returnBody.put("messageSeverity", "warn");
-            returnBody.put("listings", null);
-            return ResponseEntity.status(500).body(returnBody);
-        }  catch (Exception e) {
-            returnBody.put("message", "Error getting listings.");
-            returnBody.put("messageSeverity", "error");
-            returnBody.put("listings", null);
-            return ResponseEntity.status(500).body(returnBody);
+            responseBody.setMessage("Unable to delete listing.");
+            return ResponseEntity.status(500).body(responseBody);
         }
     }
 }
