@@ -1,9 +1,8 @@
 package com.borsa.apartment.controller;
 
+import com.borsa.apartment.dto.MessageResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Collections;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/")
@@ -12,7 +11,9 @@ public class TokenController {
 
     // If the call passed security check, it is valid.
     @GetMapping("/validate-token")
-    public ResponseEntity<Map<String, Object>> validateToken() {
-        return ResponseEntity.ok(Collections.singletonMap("message", "Token is valid"));
+    public ResponseEntity<MessageResponseDto> validateToken() {
+        MessageResponseDto responseBody = new MessageResponseDto();
+        responseBody.setMessage("Token valid.");
+        return ResponseEntity.ok().body(responseBody);
     }
 }

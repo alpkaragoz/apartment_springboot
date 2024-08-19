@@ -20,11 +20,8 @@ public class ApartmentListingService {
 
     public ApartmentListing saveListing(User user, ApartmentListing listing) {
         listing.setUser(user);
+        listing.setListerEmail(user.getEmail());
         return apartmentListingRepository.save(listing);
-    }
-
-    public ApartmentListing getListingById(Long id) {
-        return apartmentListingRepository.findById(id).orElse(null);
     }
 
     public ApartmentListing updateListing(ApartmentListing listing) {

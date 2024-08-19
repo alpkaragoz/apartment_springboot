@@ -21,7 +21,7 @@ public class ApartmentListing {
     private RentSaleEnum rentSale;
 
     @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -39,11 +39,13 @@ public class ApartmentListing {
 
     private double homeSquareMeter;
 
+    private String listerEmail;
+
     public enum RentSaleEnum {
         RENT, SALE
     }
 
-    public ApartmentListing(String address, Long id, String listingName, RentSaleEnum rentSale, User user, int age, int roomNumber, double price, boolean hasBalcony, boolean hasFurniture, int bathroomNumber, double homeSquareMeter) {
+    public ApartmentListing(String address, Long id, String listingName, RentSaleEnum rentSale, User user, int age, int roomNumber, double price, boolean hasBalcony, boolean hasFurniture, int bathroomNumber, double homeSquareMeter, String listerEmail) {
         this.address = address;
         this.id = id;
         this.listingName = listingName;
@@ -56,6 +58,7 @@ public class ApartmentListing {
         this.hasFurniture = hasFurniture;
         this.bathroomNumber = bathroomNumber;
         this.homeSquareMeter = homeSquareMeter;
+        this.listerEmail = listerEmail;
     }
 
     public ApartmentListing() {
@@ -157,5 +160,13 @@ public class ApartmentListing {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getListerEmail() {
+        return listerEmail;
+    }
+
+    public void setListerEmail(String listerEmail) {
+        this.listerEmail = listerEmail;
     }
 }
