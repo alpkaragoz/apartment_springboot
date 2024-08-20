@@ -9,12 +9,9 @@ spring.datasource.password=example
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation= true
 spring.jpa.properties.hibernate.dialect= org.hibernate.dialect.PostgreSQLDialect
-
-# Hibernate ddl auto (create, create-drop, validate, update)
 spring.jpa.hibernate.ddl-auto= update
 
 security.jwt.secret-key=example
-# 1h in millisecond
 security.jwt.expiration-time=3600000
 
 spring.mail.host=smtp.example.com
