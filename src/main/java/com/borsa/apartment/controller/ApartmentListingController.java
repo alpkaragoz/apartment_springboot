@@ -4,12 +4,14 @@ import com.borsa.apartment.dto.MessageResponseDto;
 import com.borsa.apartment.dto.MyListingsResponseDto;
 import com.borsa.apartment.model.ApartmentListing;
 import com.borsa.apartment.service.ApartmentListingService;
+import com.borsa.apartment.service.EmailService;
 import com.borsa.apartment.service.UserService;
 import com.borsa.apartment.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import com.borsa.apartment.model.Email;
 
 @RestController
 @RequestMapping("/api/apartments")
@@ -21,6 +23,9 @@ public class ApartmentListingController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/lists")
     public List<ApartmentListing> getAllListings() {
@@ -35,6 +40,7 @@ public class ApartmentListingController {
             User user = userService.findUserFromToken(token);
             apartmentListingService.saveListing(user, listing);
             responseBody.setMessage("Successfully added listing.");
+            emailService.sendEmail(Email.listingCreatedEmail(user.getEmail()));
             return ResponseEntity.ok().body(responseBody);
         } catch (Exception e) {
             responseBody.setMessage("Unable to add listing.");
