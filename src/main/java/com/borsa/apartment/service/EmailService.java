@@ -27,7 +27,6 @@ public class EmailService {
 
             mailSender.send(message);
         } catch (Exception e) {
-            e.printStackTrace();  // Print the stack trace for debugging
             System.out.println("Failed to send email.");
         }
     }

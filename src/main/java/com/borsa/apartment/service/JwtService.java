@@ -53,7 +53,7 @@ public class JwtService {
                 .setSubject(userEmail)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + getExpirationTime()))
-                .signWith(SignatureAlgorithm.HS256, getSignInKey())
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -72,8 +72,9 @@ public class JwtService {
 
     private Claims extractAllClaims(String token) {
         return Jwts
-                .parser()
+                .parserBuilder()
                 .setSigningKey(getSignInKey())
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
     }

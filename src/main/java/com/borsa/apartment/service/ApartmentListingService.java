@@ -18,14 +18,14 @@ public class ApartmentListingService {
         return apartmentListingRepository.findAll();
     }
 
-    public ApartmentListing saveListing(User user, ApartmentListing listing) {
+    public void saveListing(User user, ApartmentListing listing) {
         listing.setUser(user);
         listing.setListerEmail(user.getEmail());
-        return apartmentListingRepository.save(listing);
+        apartmentListingRepository.save(listing);
     }
 
-    public ApartmentListing updateListing(ApartmentListing listing) {
-        return apartmentListingRepository.save(listing);
+    public void updateListing(ApartmentListing listing) {
+        apartmentListingRepository.save(listing);
     }
 
     public void deleteListing(Long id) {

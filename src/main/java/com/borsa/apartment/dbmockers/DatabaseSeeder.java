@@ -17,7 +17,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private DataGenerator dataGenerator;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         List<ApartmentListing> listings = dataGenerator.generateListings(0); // Change number to populate db
         apartmentListingRepository.saveAll(listings);
     }
