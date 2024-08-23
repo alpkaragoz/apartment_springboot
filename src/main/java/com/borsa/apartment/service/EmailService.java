@@ -13,10 +13,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
-
+    private final JavaMailSender mailSender;
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+
+    @Autowired
+    public EmailService(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     @Async
     public void sendEmail(Email email) {

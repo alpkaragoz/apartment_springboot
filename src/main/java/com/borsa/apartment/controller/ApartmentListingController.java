@@ -12,11 +12,12 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200")
 public class ApartmentListingController {
 
-    @Autowired
-    private ApartmentListingService apartmentListingService;
+    private final ApartmentListingService apartmentListingService;
 
     @Autowired
-    private UserService userService;
+    public ApartmentListingController (ApartmentListingService apartmentListingService) {
+        this.apartmentListingService = apartmentListingService;
+    }
 
     @GetMapping()
     public List<ApartmentListing> getAllListings() {

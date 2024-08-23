@@ -39,8 +39,8 @@ public class RestExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
 
-//    @ExceptionHandler(JwtException.class)
-//    public ResponseEntity<String> handleTokenException(JwtException e) {
-//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-//    }
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<String> handleTokenException(JwtException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    }
 }

@@ -15,11 +15,14 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final ApartmentListingService apartmentListingService;
 
     @Autowired
-    private ApartmentListingService apartmentListingService;
+    public UserController(ApartmentListingService apartmentListingService, UserService userService) {
+        this.apartmentListingService = apartmentListingService;
+        this.userService = userService;
+    }
 
     @PostMapping()
     public ResponseEntity<MessageResponseDto> registerUser(@RequestBody User requestUser) {

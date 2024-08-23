@@ -20,19 +20,19 @@ import java.util.*;
 @Service
 public class ApartmentListingService {
 
-    @Autowired
-    private ApartmentListingRepository apartmentListingRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private JwtService jwtService;
-
+    private final ApartmentListingRepository apartmentListingRepository;
+    private final UserService userService;
+    private final EmailService emailService;
+    private final JwtService jwtService;
     private static final Logger LOGGER = LoggerFactory.getLogger(RestExceptionHandler.class);
+
+    @Autowired
+    public ApartmentListingService(ApartmentListingRepository apartmentListingRepository, UserService userService, EmailService emailService, JwtService jwtService) {
+        this.apartmentListingRepository = apartmentListingRepository;
+        this.userService = userService;
+        this.emailService = emailService;
+        this.jwtService = jwtService;
+    }
 
     public List<ApartmentListing> getAllListings() {
         return apartmentListingRepository.findAll();

@@ -1,6 +1,5 @@
 package com.borsa.apartment.service;
 
-import com.borsa.apartment.model.User;
 import com.borsa.apartment.repo.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -25,8 +24,12 @@ public class JwtService {
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
 
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public JwtService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public String extractId(String token) throws JwtException {
         try {

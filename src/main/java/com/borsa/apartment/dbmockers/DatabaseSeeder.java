@@ -10,11 +10,14 @@ import java.util.List;
 @Component
 public class DatabaseSeeder implements CommandLineRunner {
 
-    @Autowired
-    private ApartmentListingRepository apartmentListingRepository;
+    private final ApartmentListingRepository apartmentListingRepository;
+    private final DataGenerator dataGenerator;
 
     @Autowired
-    private DataGenerator dataGenerator;
+    public DatabaseSeeder(ApartmentListingRepository apartmentListingRepository, DataGenerator dataGenerator) {
+        this.apartmentListingRepository = apartmentListingRepository;
+        this.dataGenerator = dataGenerator;
+    }
 
     @Override
     public void run(String... args) {

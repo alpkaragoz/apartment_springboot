@@ -20,8 +20,12 @@ import java.util.List;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
+    private final JwtService jwtService;
+
     @Autowired
-    private JwtService jwtService;
+    public JwtRequestFilter(JwtService jwtService) {
+        this.jwtService = jwtService;
+    }
 
     private static final List<String> EXCLUDED_ENDPOINTS = Arrays.asList(
             "/api/auth/tokens",

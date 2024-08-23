@@ -12,8 +12,12 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
 
+    private final UserService userService;
+
     @Autowired
-    UserService userService;
+    public AuthController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping("/tokens")
     public ResponseEntity<TokenResponseDto> loginUser(@RequestBody User requestUser) {

@@ -1,7 +1,6 @@
 package com.borsa.apartment.dto;
 
 import com.borsa.apartment.model.ApartmentListing;
-
 import java.util.List;
 
 public class UserListingsResponseDto {
