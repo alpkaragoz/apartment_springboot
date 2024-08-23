@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/apartments/{apartmentId}")
-    public ResponseEntity<MessageResponseDto> editListing(@PathVariable String userId, @RequestBody ApartmentListing listing, @RequestHeader("Authorization") String header) {
+    public ResponseEntity<MessageResponseDto> editListing(@PathVariable String userId, @RequestBody ApartmentListing listing, @RequestHeader("Authorization") String header, @PathVariable Long apartmentId) {
         return ResponseEntity.ok().body(apartmentListingService.updateListing(userId, listing, header));
     }
 }
