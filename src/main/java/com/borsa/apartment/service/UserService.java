@@ -1,8 +1,14 @@
 package com.borsa.apartment.service;
 
-import com.borsa.apartment.model.ApartmentListing;
+import com.borsa.apartment.dto.MessageResponseDto;
+import com.borsa.apartment.dto.TokenResponseDto;
+import com.borsa.apartment.exception.InvalidCredentialsException;
+import com.borsa.apartment.exception.UserAlreadyExistsException;
+import com.borsa.apartment.exception.UserNotFoundException;
 import com.borsa.apartment.model.User;
 import com.borsa.apartment.repo.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,34 +27,38 @@ public class UserService {
     @Autowired
     private JwtService jwtService;
 
-    public User saveUser(User requestUser) {
-        String userEmail = requestUser.getEmail();
-        if (userRepository.findByEmail(userEmail) != null) {
-            return null; // Email already registered
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+
+    public MessageResponseDto saveUser(User requestUser) {
+        String email = requestUser.getEmail();
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new UserAlreadyExistsException("User with given email already exists.");
         }
-        requestUser.setToken(jwtService.generateToken(userEmail));
+        MessageResponseDto responseDto = new MessageResponseDto();
+        responseDto.setMessage("Registration successful.");
         requestUser.setPassword(passwordEncoder.encode(requestUser.getPassword()));
-        return userRepository.save(requestUser);
+        userRepository.save(requestUser);
+        LOGGER.info("New user created with email: {}", email);
+        return responseDto;
     }
 
-    public User authenticateUser(User requestUser) {
-        String userEmail = requestUser.getEmail();
-        User user = userRepository.findByEmail(userEmail);
-        if (user != null && passwordEncoder.matches(requestUser.getPassword(), user.getPassword())) {
-            String newToken = jwtService.generateToken(userEmail);
-            user.setToken(newToken);
-            userRepository.updateToken(userEmail, newToken);
-            return user;
+    public TokenResponseDto authenticateUser(User requestUser) {
+        String email = requestUser.getEmail();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found for given email."));
+        if (passwordEncoder.matches(requestUser.getPassword(), user.getPassword())) {
+            TokenResponseDto responseDto = new TokenResponseDto();
+            responseDto.setMessage("Authentication successful.");
+            responseDto.setToken(jwtService.generateToken(user.getId().toString()));
+            responseDto.setId(user.getId().toString());
+            LOGGER.info("User logged in. Email: {}", email);
+            return responseDto;
+        } else {
+            throw new InvalidCredentialsException("Given email or password is wrong.");
         }
-        return null;
     }
 
-    public User findUserFromToken(String token) {
-        String email = jwtService.extractEmail(token);
-        return userRepository.findByEmail(email);
-    }
-
-    public List<ApartmentListing> getApartmentListings(User user) {
-        return user.getApartmentListings();
+    public User getUser(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 }

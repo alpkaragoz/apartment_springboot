@@ -1,6 +1,9 @@
 package com.borsa.apartment.service;
 
+import com.borsa.apartment.model.User;
+import com.borsa.apartment.repo.UserRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.security.Key;
@@ -10,6 +13,7 @@ import java.util.Map;
 import java.util.function.Function;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +25,15 @@ public class JwtService {
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
 
-    public String extractEmail(String token) {
-        return extractClaim(token, Claims::getSubject);
+    @Autowired
+    private UserRepository userRepository;
+
+    public String extractId(String token) throws JwtException {
+        try {
+            return extractClaim(token, Claims::getSubject);
+        } catch (Exception e) {
+            throw new JwtException("Unauthorized request.");
+        }
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -30,12 +41,12 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(String userEmail) {
-        return generateToken(new HashMap<>(), userEmail);
+    public String generateToken(String id) {
+        return generateToken(new HashMap<>(), id);
     }
 
-    private String generateToken(Map<String, Object> extraClaims, String userEmail) {
-        return buildToken(extraClaims, userEmail, jwtExpiration);
+    private String generateToken(Map<String, Object> extraClaims, String id) {
+        return buildToken(extraClaims, id, jwtExpiration);
     }
 
     public long getExpirationTime() {
@@ -44,22 +55,27 @@ public class JwtService {
 
     private String buildToken(
             Map<String, Object> extraClaims,
-            String userEmail,
+            String id,
             long expiration
     ) {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
-                .setSubject(userEmail)
+                .setSubject(id)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + getExpirationTime()))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public boolean isTokenValid(String token, String username) {
-        final String usernameFromToken = extractEmail(token);
-        return (usernameFromToken.equals(username)) && !isTokenExpired(token);
+    public boolean isTokenValid(String token, String id) {
+        validateUserExists(id);
+        return !isTokenExpired(token);
+    }
+
+    private void validateUserExists(String id) {
+        userRepository.findById(Long.valueOf(id))
+                .orElseThrow(() -> new JwtException("Not authorized."));
     }
 
     private boolean isTokenExpired(String token) {

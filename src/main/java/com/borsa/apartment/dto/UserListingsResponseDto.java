@@ -4,12 +4,11 @@ import com.borsa.apartment.model.ApartmentListing;
 
 import java.util.List;
 
-public class MyListingsResponseDto {
+public class UserListingsResponseDto {
     private List<ApartmentListing> listings;
     private String message;
-    private String messageSeverity;
 
-    public MyListingsResponseDto() {
+    public UserListingsResponseDto() {
     }
 
     public String getMessage() {
@@ -18,14 +17,6 @@ public class MyListingsResponseDto {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public String getMessageSeverity() {
-        return messageSeverity;
-    }
-
-    public void setMessageSeverity(String messageSeverity) {
-        this.messageSeverity = messageSeverity;
     }
 
     public List<ApartmentListing> getListings() {

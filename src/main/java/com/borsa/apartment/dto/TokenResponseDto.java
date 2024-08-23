@@ -1,10 +1,11 @@
 package com.borsa.apartment.dto;
 
-public class LoginResponseDto {
+public class TokenResponseDto {
+    private String id;
     private String token;
     private String message;
 
-    public LoginResponseDto() {
+    public TokenResponseDto() {
     }
 
     public String getMessage() {
@@ -22,4 +23,13 @@ public class LoginResponseDto {
     public void setToken(String token) {
         this.token = token;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
 }

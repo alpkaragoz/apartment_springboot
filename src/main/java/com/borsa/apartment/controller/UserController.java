@@ -1,8 +1,10 @@
 package com.borsa.apartment.controller;
 
-import com.borsa.apartment.dto.LoginResponseDto;
+import com.borsa.apartment.dto.UserListingsResponseDto;
 import com.borsa.apartment.dto.MessageResponseDto;
+import com.borsa.apartment.model.ApartmentListing;
 import com.borsa.apartment.model.User;
+import com.borsa.apartment.service.ApartmentListingService;
 import com.borsa.apartment.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,28 +18,31 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/register")
+    @Autowired
+    private ApartmentListingService apartmentListingService;
+
+    @PostMapping()
     public ResponseEntity<MessageResponseDto> registerUser(@RequestBody User requestUser) {
-        User savedUser = userService.saveUser(requestUser);
-        MessageResponseDto responseBody = new MessageResponseDto();
-        if (savedUser == null) {
-            responseBody.setMessage("Email already in-use.");
-            return ResponseEntity.status(400).body(responseBody);
-        }
-        responseBody.setMessage("Registration successful.");
-        return ResponseEntity.ok(responseBody);
+        return ResponseEntity.ok().body(userService.saveUser(requestUser));
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> loginUser(@RequestBody User requestUser) {
-        User user = userService.authenticateUser(requestUser);
-        LoginResponseDto responseBody = new LoginResponseDto();
-        if (user == null) {
-            responseBody.setMessage("Invalid credentials.");
-            return ResponseEntity.status(401).body(responseBody);
-        }
-        responseBody.setMessage("Authentication successful.");
-        responseBody.setToken(user.getToken());
-        return ResponseEntity.ok(responseBody);
+    @PostMapping("/{userId}/apartments")
+    public ResponseEntity<MessageResponseDto> createListing(@PathVariable String userId, @RequestBody ApartmentListing listing, @RequestHeader("Authorization") String header) {
+        return ResponseEntity.ok().body(apartmentListingService.createListing(userId, listing, header));
+    }
+
+    @GetMapping("/{userId}/apartments")
+    public ResponseEntity<UserListingsResponseDto> returnUserListings(@PathVariable String userId, @RequestHeader("Authorization") String header) {
+        return ResponseEntity.ok().body(apartmentListingService.getUserApartmentListings(userId, header));
+    }
+
+    @DeleteMapping("/{userId}/apartments/{apartmentId}")
+    public ResponseEntity<MessageResponseDto> deleteListing(@PathVariable String userId, @PathVariable Long apartmentId, @RequestHeader("Authorization") String header) {
+        return ResponseEntity.ok().body(apartmentListingService.deleteListing(userId ,apartmentId, header));
+    }
+
+    @PutMapping("/{userId}/apartments/{apartmentId}")
+    public ResponseEntity<MessageResponseDto> editListing(@PathVariable String userId, @RequestBody ApartmentListing listing, @RequestHeader("Authorization") String header) {
+        return ResponseEntity.ok().body(apartmentListingService.updateListing(userId, listing, header));
     }
 }
