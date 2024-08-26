@@ -10,6 +10,7 @@ import com.borsa.apartment.model.ApartmentListing;
 import com.borsa.apartment.model.Email;
 import com.borsa.apartment.model.User;
 import com.borsa.apartment.repo.ApartmentListingRepository;
+import com.borsa.apartment.util.ValidationUtil;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ public class ApartmentListingService {
         if(!extractedUserId.equals(userId)) {
             throw new UnauthorizedAccessException("Unauthorized access attempt for the resource.");
         }
+        ValidationUtil.validateListing(listing);
         MessageResponseDto responseBody = new MessageResponseDto();
         User user = userService.getUser(Long.valueOf(userId));
         listing.setUser(user);

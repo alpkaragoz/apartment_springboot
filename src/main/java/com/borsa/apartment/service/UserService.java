@@ -7,6 +7,7 @@ import com.borsa.apartment.exception.UserAlreadyExistsException;
 import com.borsa.apartment.exception.UserNotFoundException;
 import com.borsa.apartment.model.User;
 import com.borsa.apartment.repo.UserRepository;
+import com.borsa.apartment.util.ValidationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ public class UserService {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new UserAlreadyExistsException("User with given email already exists.");
         }
+        ValidationUtil.validateRegister(requestUser);
         MessageResponseDto responseDto = new MessageResponseDto();
         responseDto.setMessage("Registration successful.");
         requestUser.setPassword(passwordEncoder.encode(requestUser.getPassword()));
@@ -44,7 +46,7 @@ public class UserService {
     public TokenResponseDto authenticateUser(User requestUser) {
         String email = requestUser.getEmail();
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found for given email."));
+                .orElseThrow(() -> new UserNotFoundException("Given email or password is wrong."));
         if (passwordEncoder.matches(requestUser.getPassword(), user.getPassword())) {
             TokenResponseDto responseDto = new TokenResponseDto();
             responseDto.setMessage("Authentication successful.");
