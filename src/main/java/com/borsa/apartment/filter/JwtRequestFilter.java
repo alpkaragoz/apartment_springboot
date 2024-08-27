@@ -12,6 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Arrays;
@@ -21,6 +23,7 @@ import java.util.List;
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private static final PathMatcher pathMatcher = new AntPathMatcher();
 
     @Autowired
     public JwtRequestFilter(JwtService jwtService) {
@@ -32,11 +35,27 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             "/api/users"
     );
 
+    private static final List<String> SWAGGER_ENDPOINTS = Arrays.asList(
+            "/actuator/**",
+            "/v3/api-docs/**",
+            "/api-docs/**",
+            "/configuration/ui/**",
+            "/swagger-resources/**",
+            "/configuration/**",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/webjars/**"
+    );
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+
         String path = request.getRequestURI();
         String method = request.getMethod();
-        return "POST".equalsIgnoreCase(method) && EXCLUDED_ENDPOINTS.contains(path);
+
+        boolean isExcludedEndpoint = "POST".equalsIgnoreCase(method) && EXCLUDED_ENDPOINTS.contains(path);
+        boolean isSwaggerEndpoint = SWAGGER_ENDPOINTS.stream().anyMatch(endpoint -> pathMatcher.match(endpoint, path));
+        return isExcludedEndpoint || isSwaggerEndpoint;
     }
 
     @Override

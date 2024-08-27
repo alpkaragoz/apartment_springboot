@@ -6,6 +6,7 @@ import com.borsa.apartment.model.ApartmentListing;
 import com.borsa.apartment.model.User;
 import com.borsa.apartment.service.ApartmentListingService;
 import com.borsa.apartment.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

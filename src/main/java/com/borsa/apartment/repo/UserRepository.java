@@ -1,6 +1,7 @@
 package com.borsa.apartment.repo;
 
 import com.borsa.apartment.model.User;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,5 +18,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Transactional
     @Query("update User u set u.token = :token where u.email = :email")
-    void updateToken(@Param(value = "email") String email,@Param(value = "token") String token);
+    void updateToken(@Param(value = "email") String email, @Param(value = "token") String token);
 }

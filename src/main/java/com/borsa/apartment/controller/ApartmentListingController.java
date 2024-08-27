@@ -25,11 +25,6 @@ public class ApartmentListingController {
     }
 
     @GetMapping()
-    public List<ApartmentListing> getAllListings() {
-        return apartmentListingService.getAllListings();
-    }
-
-    @GetMapping("/filter")
     public ResponseEntity<FilteredListingsDto> getFilteredApartmentListings(
             @RequestParam(required = false, defaultValue = "") ApartmentListing.RentSaleEnum rentSale,
             @RequestParam(required = false, defaultValue = "0") double minPrice,
