@@ -1,5 +1,6 @@
 package com.borsa.apartment.service;
 
+import com.borsa.apartment.dto.FilteredListingsDto;
 import com.borsa.apartment.dto.MessageResponseDto;
 import com.borsa.apartment.dto.UserListingsResponseDto;
 import com.borsa.apartment.exception.DatabaseException;
@@ -10,12 +11,16 @@ import com.borsa.apartment.model.ApartmentListing;
 import com.borsa.apartment.model.Email;
 import com.borsa.apartment.model.User;
 import com.borsa.apartment.repo.ApartmentListingRepository;
+import com.borsa.apartment.util.ApartmentListingSpecUtil;
 import com.borsa.apartment.util.ValidationUtil;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
 
 @Service
@@ -118,5 +123,21 @@ public class ApartmentListingService {
         MessageResponseDto responseDto = new MessageResponseDto();
         responseDto.setMessage("Successfully deleted listing.");
         return responseDto;
+    }
+
+
+    public FilteredListingsDto getFilteredApartmentListings(
+            ApartmentListing.RentSaleEnum rentSale,
+            double minPrice,
+            double maxPrice,
+            String address,
+            String listingName,
+            Pageable pageable
+    ) {
+        Page<ApartmentListing> page = apartmentListingRepository.findAll(
+                ApartmentListingSpecUtil.getApartmentListingSpecification(rentSale, minPrice, maxPrice, address, listingName),
+                pageable
+        );
+        return new FilteredListingsDto(page.getContent(), page.getTotalPages());
     }
 }
