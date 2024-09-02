@@ -1,7 +1,6 @@
 package com.borsa.apartment.repo;
 
 import com.borsa.apartment.model.User;
-import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

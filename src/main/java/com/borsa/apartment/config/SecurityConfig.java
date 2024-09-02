@@ -1,7 +1,5 @@
 package com.borsa.apartment.config;
 
-import com.borsa.apartment.filter.JwtRequestFilter;
-import com.borsa.apartment.service.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
