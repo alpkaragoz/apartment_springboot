@@ -3,6 +3,11 @@ package com.borsa.apartment.controller;
 import com.borsa.apartment.dto.FilteredListingsDto;
 import com.borsa.apartment.model.ApartmentListing;
 import com.borsa.apartment.service.ApartmentListingService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +29,13 @@ public class ApartmentListingController {
         this.apartmentListingService = apartmentListingService;
     }
 
+    @Operation(summary = "Get filtered apartment listings", description = "Retrieve a paginated list of apartment listings filtered by rent/sale type, price range, address, and listing name.")
     @GetMapping()
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved listings"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access attempt for the resource.", content = @Content),
+            @ApiResponse(responseCode = "404", description = "No listing found.", content = @Content),
+    })
     public ResponseEntity<FilteredListingsDto> getFilteredApartmentListings(
             @RequestParam(required = false, defaultValue = "") ApartmentListing.RentSaleEnum rentSale,
             @RequestParam(required = false, defaultValue = "0") double minPrice,

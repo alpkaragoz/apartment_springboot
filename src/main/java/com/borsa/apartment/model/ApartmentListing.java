@@ -2,6 +2,7 @@ package com.borsa.apartment.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "apartment_listings")
@@ -12,8 +13,10 @@ public class ApartmentListing {
     private Long id;
 
     @Column(nullable = false)
+    @NotBlank
     private String listingName;
 
+    @NotBlank
     @Column(nullable = false)
     private String address;
 
