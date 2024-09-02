@@ -69,8 +69,8 @@ public class ValidationUtil {
     }
 
     private static void validateRoomNumber(int roomNumber) {
-        if (roomNumber <= 0) {
-            throw new BadRequestException("Room number must be greater than zero.");
+        if (roomNumber < 0) {
+            throw new BadRequestException("Room number must be positive.");
         }
         if (roomNumber > 1000) {
             throw new BadRequestException("Room number is too high.");
@@ -78,7 +78,7 @@ public class ValidationUtil {
     }
 
     private static void validatePrice(double price) {
-        if (price <= 0) {
+        if (price < 0) {
             throw new BadRequestException("Price must be a positive number.");
         }
         if (price > 1_000_000_000) {
@@ -87,7 +87,7 @@ public class ValidationUtil {
     }
 
     private static void validateHomeSquareMeter(double homeSquareMeter) {
-        if (homeSquareMeter <= 0) {
+        if (homeSquareMeter < 0) {
             throw new BadRequestException("Home square meter must be a positive number.");
         }
         if (homeSquareMeter > 10_000) {
