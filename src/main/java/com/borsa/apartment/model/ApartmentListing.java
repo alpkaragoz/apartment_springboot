@@ -1,8 +1,12 @@
 package com.borsa.apartment.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "apartment_listings")
@@ -27,6 +31,10 @@ public class ApartmentListing {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "listing")
+    @JsonManagedReference("listing-favorites")
+    private Set<Favorite> favoritedBy = new HashSet<>();
 
     private int age;
 
@@ -171,5 +179,13 @@ public class ApartmentListing {
 
     public void setListerEmail(String listerEmail) {
         this.listerEmail = listerEmail;
+    }
+
+    public Set<Favorite> getFavoritedBy() {
+        return favoritedBy;
+    }
+
+    public void setFavoritedBy(Set<Favorite> favoritedBy) {
+        this.favoritedBy = favoritedBy;
     }
 }

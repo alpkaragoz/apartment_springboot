@@ -4,7 +4,9 @@ import com.borsa.apartment.dto.UserListingsResponseDto;
 import com.borsa.apartment.dto.MessageResponseDto;
 import com.borsa.apartment.model.ApartmentListing;
 import com.borsa.apartment.model.User;
+import com.borsa.apartment.repo.FavoriteRepository;
 import com.borsa.apartment.service.ApartmentListingService;
+import com.borsa.apartment.service.FavoriteService;
 import com.borsa.apartment.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -21,11 +25,13 @@ public class UserController {
 
     private final UserService userService;
     private final ApartmentListingService apartmentListingService;
+    private final FavoriteService favoriteService;
 
     @Autowired
-    public UserController(ApartmentListingService apartmentListingService, UserService userService) {
+    public UserController(ApartmentListingService apartmentListingService, UserService userService, FavoriteService favoriteService) {
         this.apartmentListingService = apartmentListingService;
         this.userService = userService;
+        this.favoriteService = favoriteService;
     }
 
     @Operation(summary = "Register a new user", description = "Create a new user in the system.")
@@ -75,5 +81,10 @@ public class UserController {
     })    @PutMapping("/{userId}/apartments/{apartmentId}")
     public ResponseEntity<MessageResponseDto> editListing(@PathVariable String userId, @RequestBody ApartmentListing listing, @RequestHeader("Authorization") String header, @PathVariable Long apartmentId) {
         return ResponseEntity.ok().body(apartmentListingService.updateListing(userId, listing, header));
+    }
+
+    @GetMapping("/{userId}/favorites")
+    public ResponseEntity<List<Long>> getUserFavorites (@PathVariable String userId, @RequestHeader("Authorization") String header) {
+        return ResponseEntity.ok().body(favoriteService.getLikedListingsByUser(Long.valueOf(userId), header));
     }
 }

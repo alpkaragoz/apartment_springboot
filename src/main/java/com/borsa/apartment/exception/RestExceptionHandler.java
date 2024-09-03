@@ -48,4 +48,14 @@ public class RestExceptionHandler {
     public ResponseEntity<String> handleBadRequestException(BadRequestException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<String> handleResourceNotFoundException(ResourceNotFoundException e) {
+        return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(FavoriteAlreadyExistsException.class)
+    public ResponseEntity<String> handleFavoriteAlreadyExistsException(FavoriteAlreadyExistsException e) {
+        return  ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
 }

@@ -1,8 +1,12 @@
 package com.borsa.apartment.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "app_user")
@@ -18,6 +22,10 @@ public class User {
     @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ApartmentListing> apartmentListings;
+
+    @JsonManagedReference("user-favorites")
+    @OneToMany(mappedBy = "user")
+    private Set<Favorite> favorites = new HashSet<>();
 
     public User(String email, String password) {
         this.email = email;
@@ -65,5 +73,13 @@ public class User {
 
     public void setApartmentListings(List<ApartmentListing> apartmentListings) {
         this.apartmentListings = apartmentListings;
+    }
+
+    public Set<Favorite> getFavorites() {
+        return favorites;
+    }
+
+    public void setFavorites(Set<Favorite> favorites) {
+        this.favorites = favorites;
     }
 }

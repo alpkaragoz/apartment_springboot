@@ -40,6 +40,10 @@ public class ApartmentListingService {
         this.jwtService = jwtService;
     }
 
+    public ApartmentListing getListing(long id) {
+        return apartmentListingRepository.findById(id).orElseThrow(() -> new ListingNotFoundException("Listing not found."));
+    }
+
     public List<ApartmentListing> getAllListings() {
         return apartmentListingRepository.findAll();
     }
