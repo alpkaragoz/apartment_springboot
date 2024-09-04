@@ -1,12 +1,15 @@
 package com.borsa.apartment.service;
 
+import com.borsa.apartment.dto.ListingWithLikesDto;
 import com.borsa.apartment.dto.MessageResponseDto;
 import com.borsa.apartment.exception.FavoriteAlreadyExistsException;
+import com.borsa.apartment.exception.ListingNotFoundException;
 import com.borsa.apartment.exception.ResourceNotFoundException;
 import com.borsa.apartment.exception.UnauthorizedAccessException;
 import com.borsa.apartment.model.ApartmentListing;
 import com.borsa.apartment.model.Favorite;
 import com.borsa.apartment.model.User;
+import com.borsa.apartment.repo.ApartmentListingRepository;
 import com.borsa.apartment.repo.FavoriteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,15 +22,15 @@ public class FavoriteService {
 
     private final FavoriteRepository favoriteRepository;
     private final UserService userService;
-    private final ApartmentListingService apartmentListingService;
     private final JwtService jwtService;
+    private final ApartmentListingRepository apartmentListingRepository;
 
     @Autowired
-    public FavoriteService(FavoriteRepository favoriteRepository, UserService userService, ApartmentListingService apartmentListingService, JwtService jwtService) {
+    public FavoriteService(FavoriteRepository favoriteRepository, UserService userService, JwtService jwtService, ApartmentListingRepository apartmentListingRepository) {
         this.favoriteRepository = favoriteRepository;
         this.userService = userService;
-        this.apartmentListingService = apartmentListingService;
         this.jwtService = jwtService;
+        this.apartmentListingRepository = apartmentListingRepository;
     }
 
     public List<Long> getLikedListingsByUser(Long userId, String header) {
@@ -63,7 +66,7 @@ public class FavoriteService {
             throw new FavoriteAlreadyExistsException("User already added this listing to favorites.");
         }
         User user = userService.getUser(userId);
-        ApartmentListing listing = apartmentListingService.getListing(listingId);
+        ApartmentListing listing = apartmentListingRepository.findById(listingId).orElseThrow(() -> new ListingNotFoundException("Listing not found."));
 
         Favorite favorite = new Favorite();
         favorite.setUser(user);

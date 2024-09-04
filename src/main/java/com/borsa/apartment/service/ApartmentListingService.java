@@ -1,6 +1,7 @@
 package com.borsa.apartment.service;
 
 import com.borsa.apartment.dto.FilteredListingsDto;
+import com.borsa.apartment.dto.ListingWithLikesDto;
 import com.borsa.apartment.dto.MessageResponseDto;
 import com.borsa.apartment.dto.UserListingsResponseDto;
 import com.borsa.apartment.exception.DatabaseException;
@@ -22,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ApartmentListingService {
@@ -30,14 +32,16 @@ public class ApartmentListingService {
     private final UserService userService;
     private final EmailService emailService;
     private final JwtService jwtService;
+    private final FavoriteService favoriteService;
     private static final Logger LOGGER = LoggerFactory.getLogger(RestExceptionHandler.class);
 
     @Autowired
-    public ApartmentListingService(ApartmentListingRepository apartmentListingRepository, UserService userService, EmailService emailService, JwtService jwtService) {
+    public ApartmentListingService(ApartmentListingRepository apartmentListingRepository, UserService userService, EmailService emailService, JwtService jwtService, FavoriteService favoriteService) {
         this.apartmentListingRepository = apartmentListingRepository;
         this.userService = userService;
         this.emailService = emailService;
         this.jwtService = jwtService;
+        this.favoriteService = favoriteService;
     }
 
     public ApartmentListing getListing(long id) {
@@ -143,5 +147,23 @@ public class ApartmentListingService {
                 pageable
         );
         return new FilteredListingsDto(page.getContent(), page.getTotalPages());
+    }
+
+    public List<ListingWithLikesDto> getListingsWithLikes(Long userId, String header) {
+        String token = header.substring(7);
+        String extractedUserId = jwtService.extractId(token);
+
+        // Insecure Direct Object Reference (IDOR) attack prevention.
+        if(!extractedUserId.equals(userId.toString())) {
+            throw new UnauthorizedAccessException("Unauthorized access attempt for the resource.");
+        }
+        List<ApartmentListing> listings = apartmentListingRepository.findByUserId(userId);
+
+        return listings.stream()
+                .map(listing -> {
+                    long likeCount = favoriteService.countLikesForListing(listing.getId());
+                    return new ListingWithLikesDto(listing, likeCount);
+                })
+                .collect(Collectors.toList());
     }
 }
