@@ -1,6 +1,5 @@
 package com.borsa.apartment.service;
 
-import com.borsa.apartment.dto.ListingWithLikesDto;
 import com.borsa.apartment.dto.MessageResponseDto;
 import com.borsa.apartment.exception.FavoriteAlreadyExistsException;
 import com.borsa.apartment.exception.ListingNotFoundException;
@@ -13,7 +12,6 @@ import com.borsa.apartment.repo.ApartmentListingRepository;
 import com.borsa.apartment.repo.FavoriteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
