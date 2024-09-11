@@ -1,5 +1,6 @@
 package com.borsa.apartment.service;
 
+import com.borsa.apartment.dto.ListingWithLikesDto;
 import com.borsa.apartment.dto.MessageResponseDto;
 import com.borsa.apartment.exception.FavoriteAlreadyExistsException;
 import com.borsa.apartment.exception.ListingNotFoundException;
@@ -22,13 +23,15 @@ public class FavoriteService {
     private final UserService userService;
     private final JwtService jwtService;
     private final ApartmentListingRepository apartmentListingRepository;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Autowired
-    public FavoriteService(FavoriteRepository favoriteRepository, UserService userService, JwtService jwtService, ApartmentListingRepository apartmentListingRepository) {
+    public FavoriteService(FavoriteRepository favoriteRepository, UserService userService, JwtService jwtService, ApartmentListingRepository apartmentListingRepository, WebSocketNotificationService webSocketNotificationService) {
         this.favoriteRepository = favoriteRepository;
         this.userService = userService;
         this.jwtService = jwtService;
         this.apartmentListingRepository = apartmentListingRepository;
+        this.webSocketNotificationService = webSocketNotificationService;
     }
 
     public List<Long> getLikedListingsByUser(Long userId, String header) {
@@ -42,10 +45,6 @@ public class FavoriteService {
         return favoriteRepository.findAllByUserId(userId).stream()
                 .map(favorite -> favorite.getListing().getId())
                 .collect(Collectors.toList());
-    }
-
-    public long countLikesForListing(Long listingId) {
-        return favoriteRepository.countByListingId(listingId);
     }
 
     public boolean hasUserLikedListing(Long userId, Long listingId) {
@@ -71,6 +70,8 @@ public class FavoriteService {
         favorite.setListing(listing);
         favoriteRepository.save(favorite);
 
+        webSocketNotificationService.notifyFavoriteChange(userId);
+
         MessageResponseDto responseDto = new MessageResponseDto();
         responseDto.setMessage("Successfully favorited listing");
         return responseDto;
@@ -87,6 +88,7 @@ public class FavoriteService {
         Favorite favorite = favoriteRepository.findByUserIdAndListingId(userId, listingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Favorite not found"));
         favoriteRepository.delete(favorite);
+        webSocketNotificationService.notifyFavoriteChange(userId);
 
         MessageResponseDto responseDto = new MessageResponseDto();
         responseDto.setMessage("Successfully deleted listing");

@@ -12,6 +12,7 @@ import com.borsa.apartment.model.ApartmentListing;
 import com.borsa.apartment.model.Email;
 import com.borsa.apartment.model.User;
 import com.borsa.apartment.repo.ApartmentListingRepository;
+import com.borsa.apartment.repo.FavoriteRepository;
 import com.borsa.apartment.util.ApartmentListingSpecUtil;
 import com.borsa.apartment.util.ValidationUtil;
 import jakarta.transaction.Transactional;
@@ -32,16 +33,16 @@ public class ApartmentListingService {
     private final UserService userService;
     private final EmailService emailService;
     private final JwtService jwtService;
-    private final FavoriteService favoriteService;
+    private final FavoriteRepository favoriteRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(RestExceptionHandler.class);
 
     @Autowired
-    public ApartmentListingService(ApartmentListingRepository apartmentListingRepository, UserService userService, EmailService emailService, JwtService jwtService, FavoriteService favoriteService) {
+    public ApartmentListingService(ApartmentListingRepository apartmentListingRepository, UserService userService, EmailService emailService, JwtService jwtService, FavoriteRepository favoriteRepository) {
         this.apartmentListingRepository = apartmentListingRepository;
         this.userService = userService;
         this.emailService = emailService;
         this.jwtService = jwtService;
-        this.favoriteService = favoriteService;
+        this.favoriteRepository = favoriteRepository;
     }
 
     public ApartmentListing getListing(long id) {
@@ -149,7 +150,7 @@ public class ApartmentListingService {
         return new FilteredListingsDto(page.getContent(), page.getTotalPages());
     }
 
-    public List<ListingWithLikesDto> getListingsWithLikes(Long userId, String header) {
+    public List<ListingWithLikesDto> getListingsWithFavoriteCounts(Long userId, String header) {
         String token = header.substring(7);
         String extractedUserId = jwtService.extractId(token);
 
@@ -161,7 +162,20 @@ public class ApartmentListingService {
 
         return listings.stream()
                 .map(listing -> {
-                    long likeCount = favoriteService.countLikesForListing(listing.getId());
+                    long likeCount = favoriteRepository.countByListingId(listing.getId());
+                    //long likeCount = favoriteService.countLikesForListing(listing.getId());
+                    return new ListingWithLikesDto(listing, likeCount);
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<ListingWithLikesDto> getListingsWithLikesUnsafe(Long userId) {
+        List<ApartmentListing> listings = apartmentListingRepository.findByUserId(userId);
+
+        return listings.stream()
+                .map(listing -> {
+                    long likeCount = favoriteRepository.countByListingId(listing.getId());
+                   // long likeCount = favoriteService.countLikesForListing(listing.getId());
                     return new ListingWithLikesDto(listing, likeCount);
                 })
                 .collect(Collectors.toList());

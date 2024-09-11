@@ -31,7 +31,7 @@ public class FavoriteController {
 
     @GetMapping("/listings")
     public ResponseEntity<List<ListingWithLikesDto>> getListingsWithFavoriteCounts(@RequestParam(required = true) long userId, @RequestHeader("Authorization") String header) {
-        return ResponseEntity.ok().body(apartmentListingService.getListingsWithLikes(userId, header));
+        return ResponseEntity.ok().body(apartmentListingService.getListingsWithFavoriteCounts(userId, header));
     }
 
     @DeleteMapping()

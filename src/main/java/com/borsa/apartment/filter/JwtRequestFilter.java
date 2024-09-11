@@ -47,6 +47,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             "/webjars/**"
     );
 
+    private static final List<String> WEBSOCKET_ENDPOINTS = Arrays.asList(
+            "/ws/**",
+            "/websocket/**",
+            "/ws/info/**"
+    );
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 
@@ -55,7 +61,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         boolean isExcludedEndpoint = "POST".equalsIgnoreCase(method) && EXCLUDED_ENDPOINTS.contains(path);
         boolean isSwaggerEndpoint = SWAGGER_ENDPOINTS.stream().anyMatch(endpoint -> pathMatcher.match(endpoint, path));
-        return isExcludedEndpoint || isSwaggerEndpoint;
+        boolean isWebSocketEndpoint = WEBSOCKET_ENDPOINTS.stream().anyMatch(endpoint -> pathMatcher.match(endpoint, path));
+        return isExcludedEndpoint || isSwaggerEndpoint || isWebSocketEndpoint;
     }
 
     @Override
