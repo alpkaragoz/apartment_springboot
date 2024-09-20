@@ -169,7 +169,7 @@ public class ApartmentListingService {
                 .collect(Collectors.toList());
     }
 
-    public List<ListingWithLikesDto> getListingsWithLikesUnsafe(Long userId) {
+    public List<ListingWithLikesDto> getListingsWithLikesForSocket(Long userId) {
         List<ApartmentListing> listings = apartmentListingRepository.findByUserId(userId);
 
         return listings.stream()

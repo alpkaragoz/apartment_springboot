@@ -23,8 +23,8 @@ public class WebSocketNotificationService {
      * Notify all clients that a favorite has been updated
      */
 
-    public void notifyFavoriteChange(Long userId) {
-        List<ListingWithLikesDto> listingsWithLikes = apartmentListingService.getListingsWithLikesUnsafe(userId);
+    public void broadcastFavoritesUpdate(Long userId) {
+        List<ListingWithLikesDto> listingsWithLikes = apartmentListingService.getListingsWithLikesForSocket(userId);
         messagingTemplate.convertAndSend("/topic/favorites/" + userId, listingsWithLikes);
     }
 }

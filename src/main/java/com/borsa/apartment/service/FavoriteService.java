@@ -1,6 +1,5 @@
 package com.borsa.apartment.service;
 
-import com.borsa.apartment.dto.ListingWithLikesDto;
 import com.borsa.apartment.dto.MessageResponseDto;
 import com.borsa.apartment.exception.FavoriteAlreadyExistsException;
 import com.borsa.apartment.exception.ListingNotFoundException;
@@ -11,6 +10,7 @@ import com.borsa.apartment.model.Favorite;
 import com.borsa.apartment.model.User;
 import com.borsa.apartment.repo.ApartmentListingRepository;
 import com.borsa.apartment.repo.FavoriteRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -51,6 +51,7 @@ public class FavoriteService {
         return favoriteRepository.existsByUserIdAndListingId(userId, listingId);
     }
 
+    @Transactional
     public MessageResponseDto addFavorite(Long userId, Long listingId, String header) {
         String token = header.substring(7);
         String extractedUserId = jwtService.extractId(token);
@@ -70,13 +71,14 @@ public class FavoriteService {
         favorite.setListing(listing);
         favoriteRepository.save(favorite);
 
-        webSocketNotificationService.notifyFavoriteChange(userId);
+        webSocketNotificationService.broadcastFavoritesUpdate(userId);
 
         MessageResponseDto responseDto = new MessageResponseDto();
         responseDto.setMessage("Successfully favorited listing");
         return responseDto;
     }
 
+    @Transactional
     public MessageResponseDto removeFavorite(Long userId, Long listingId, String header) {
         String token = header.substring(7);
         String extractedUserId = jwtService.extractId(token);
@@ -88,7 +90,7 @@ public class FavoriteService {
         Favorite favorite = favoriteRepository.findByUserIdAndListingId(userId, listingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Favorite not found"));
         favoriteRepository.delete(favorite);
-        webSocketNotificationService.notifyFavoriteChange(userId);
+        webSocketNotificationService.broadcastFavoritesUpdate(userId);
 
         MessageResponseDto responseDto = new MessageResponseDto();
         responseDto.setMessage("Successfully deleted listing");
